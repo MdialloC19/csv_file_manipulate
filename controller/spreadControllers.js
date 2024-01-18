@@ -68,7 +68,7 @@ exports.getOneSpreadRows =async (req,res)=>{
     
 }
 
-exports.postOnSpread = async (req, res) => {
+exports.postOneSpreadRow = async (req, res) => {
     const perso = {};
     const requiredFields = [
         'firstName', 'secondName', 'nationalIdentityNumber',
@@ -76,32 +76,34 @@ exports.postOnSpread = async (req, res) => {
         'votingPlace'
     ];
 
-    let isMissingField = false;
+    let isMissingField = {
+    value: false,
+    "error": "Bad Request",
+    "message": "Certaines données requises sont manquantes.",
+    "missingFields":[
+         
+    ]
+}
     console.log(req.body);
-
     requiredFields.forEach((field) => {
-        if (req.body[field]) {
-            perso[field] = req.body[field];
+        if (!req.body[field] || req.body[field] === '') {
+            isMissingField.value = true;
+            isMissingField.missingFields.push(field);
         } else {
-            isMissingField = true;
-            return res.status(400).json({
-                success: false,
-                error: `${field} is required.`
-            });
+            perso[field] = req.body[field];
         }
     });
+    if (isMissingField.value) {
+        return res.status(400).json({
+                success: false,
+                isMissingField
+            });
+    }
 
-    // if (isMissingField) {
-    //     // Don't proceed further if any required field is missing
-    //     return;
-    // }
-
-    const electorInstance = new Electeur(perso); // Note: Changed from 'Elector' to 'Electeur'
+    const electorInstance = new Electeur(perso); 
 
     try {
         await electorInstance.validate();
-
-        console.log("Data is valid.");
 
         await electorInstance.save();
 
@@ -111,15 +113,14 @@ exports.postOnSpread = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-
         if (error.name === 'ValidationError') {
-            // Handle validation error
+            
             return res.status(400).json({
                 success: false,
                 error: 'Validation error.',
             });
         } else {
-            // Handle other errors
+            
             return res.status(500).json({
                 success: false,
                 error: 'Error while saving data to the database.',
@@ -128,7 +129,95 @@ exports.postOnSpread = async (req, res) => {
     }
 };
 
-exports.putOnSpread=(req,res)=>{
+exports.putOneSpreadRow=async (req,res)=>{
+
+    const spreadId= req.params.id;
+        if (!isValidObjectId(spreadId)) {
+            return res.status(400).json({
+                succeed: false,
+                error: 'Invalid Idea ID'
+            });
+        }
+    const requiredFields = [
+        'firstName', 'secondName', 'nationalIdentityNumber',
+        'voterNumber', 'dateOfBirth', 'placeOfBrith',
+        'votingPlace'
+    ];
+
+    let updateFields={}, isMissingField = {
+        value: false,
+        "error": "Bad Request",
+        "message": "Certaines données requises sont manquantes.",
+        "missingFields":[   
+        ]
+    }
+    console.log(req.body);
+    requiredFields.forEach((field) => {
+        if (req.body[field] === '') {
+            isMissingField.value = true;
+            isMissingField.missingFields.push(field);
+        } else {
+            updateFields[field] = req.body[field];
+        }
+    });
+    if (isMissingField.value) {
+        return res.status(400).json({
+                success: false,
+                isMissingField
+            });
+    }
+
+    try {
+        const updatedPerso= await Electeur.findByIdAndUpdate(
+            spreadId,updateFields, {new: false}
+        );
+        if (updatedPerso === null) {
+                return res.status(404).json({
+                    succeed: false, error: 'perso not found'
+                });
+        }
+        res.status(200).json({
+            succeed: true, data: updatedPerso
+        }); 
+    } catch (error) {
+        res.status(500).json({
+            succed:false,
+            error:'Something went wrong'+ error.message
+        });
+        console.log(error);
+    }
+};
+
+exports.deleteOneSpreadRow=async (req,res)=>{
+    const spreadId= req.params.id;
+        if (!isValidObjectId(spreadId)) {
+            return res.status(400).json({
+                succeed: false,
+                error: 'Invalid spread ID'
+            });
+        }
+    try {
+        const perso=await Electeur.findById(spreadId);
+        if(!perso){
+            return res.json(404).json({
+                succed:false,
+                error: 'Row not found !!!'
+            });
+        }
+
+        const deletedPerso=await Electeur.findByIdAndDelete(spreadId);
+        res.status(200).json({
+                succed:true,
+                data:deletedPerso
+            });
+        
+    } catch (error) {
+        res.status(500).json({
+            succed:false,
+            error:'Something went wrong'+ error.message
+        });
+        console.log(error);
+    }
 
 }
 
