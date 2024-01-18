@@ -19,10 +19,21 @@ describe('API routes testing', () => {
         expect(typeof request(app).post).toBe('function');
       
     });
+    
 
     it('Should add a row on the spread ',  ()=>{
+        const data = {
+        firstName: 'John',
+        secondName: 'Doe',
+        nationalIdentityNumber: 123456789,
+        voterNumber: 987654321,
+        dateOfBirth: '1990-01-01',
+        placeOfBrith: 'City',
+        votingPlace: 'Polling Station'
+    };
        request(app)
                 .post('/api/spread')
+                .send(data)
                 .expect(201);
     });
     
