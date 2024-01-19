@@ -3,7 +3,8 @@ const mongoose= require("mongoose");
 const electorSchema=mongoose.Schema({
     firstName :{
         type:String,
-        required: [true,'Please give the firsname']
+        required: [true,'Please give the firsname'],
+        minLength:3
     },
     secondName :{
         type:String,
@@ -11,17 +12,19 @@ const electorSchema=mongoose.Schema({
     },
     nationalIdentityNumber:{
         type:Number,
-        required: [true, 'Please give the national identifical number']
+        required: [true, 'Please give the national identifical number'],
+        // unique: true,
     },
     voterNumber:{
         type:Number,
-        required: [true, 'Please give the national identifical number']
+        required: [true, 'Please give the national identifical number'],
+        // unique: true,
     },
     dateOfBirth:{
         type:Date,
         required:[true,'Please give the date of birth']
     },
-    placeOfBrith:{
+    placeOfBirth:{
         type:String,
         required:[true,'Please give the city of birth']
     },

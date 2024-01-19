@@ -1,16 +1,8 @@
 const Electeur=require('../models/electeurs');
-const {isValidObjectId}=require('mongoose');
+// const {d}=require('mongoose');
+const mongoose=require('mongoose');
 
-// data={
-//         'id':1,
-//         'name':'Moussa',
-//         'nickName':'Diallo',
-//         'date:':new Date(),
-//         'lieu de naissance':' Mbour',
-//         'NIN':10003454007,
-//         'NE':88889999,
-//         'lieu de vote': 'Mbour',
-//  }
+
 exports.getAllSpreadRows =async (req,res)=>{
    
     try {
@@ -29,7 +21,7 @@ exports.getAllSpreadRows =async (req,res)=>{
         
     } catch (error) {
         res.status(500).json({
-            succed:false,
+            succeed:false,
             error: 'Sommething went Wrong!!!'
         });
         console.log(error);
@@ -40,9 +32,9 @@ exports.getAllSpreadRows =async (req,res)=>{
 exports.getOneSpreadRows =async (req,res)=>{
      const spreadId= req.params.id;
     try {
-        if(!isValidObjectId(req.params.id)){
+        if(!mongoose.isValidObjectId(req.params.id)){
             return res.status(400).json({
-            succed:false,
+            succeed:false,
             error: 'Invalid Id'
         });
         }
@@ -60,7 +52,7 @@ exports.getOneSpreadRows =async (req,res)=>{
         
     } catch (error) {
         res.status(500).json({
-            succed:false,
+            succeed:false,
             error: 'Sommething went Wrong!!!'
         });
         console.log(error);
@@ -69,38 +61,33 @@ exports.getOneSpreadRows =async (req,res)=>{
 }
 
 exports.postOneSpreadRow = async (req, res) => {
-    const perso = {};
     const requiredFields = [
         'firstName', 'secondName', 'nationalIdentityNumber',
-        'voterNumber', 'dateOfBirth', 'placeOfBrith',
+        'voterNumber', 'dateOfBirth', 'placeOfBirth',
         'votingPlace'
     ];
 
-    let isMissingField = {
-    value: false,
-    "error": "Bad Request",
-    "message": "Certaines données requises sont manquantes.",
-    "missingFields":[
-         
-    ]
-}
-    console.log(req.body);
-    requiredFields.forEach((field) => {
-        if (!req.body[field] || req.body[field] === '') {
-            isMissingField.value = true;
-            isMissingField.missingFields.push(field);
-        } else {
-            perso[field] = req.body[field];
+    const missingFields = [];
+    const isValid = requiredFields.every((field) => {
+
+        //  console.log(req.body[field]);
+        if(!req.body[field] || req.body[field] === '') {
+            missingFields.push(field);
+            return false;
         }
+        return true;
     });
-    if (isMissingField.value) {
+
+    if (!isValid) {
         return res.status(400).json({
-                success: false,
-                isMissingField
-            });
+            succeed: false,
+            error: 'Bad Request',
+            message:'Certaines données requises sont manquantes.',
+            missingFields,
+        });
     }
 
-    const electorInstance = new Electeur(perso); 
+    const electorInstance = new Electeur(req.body);
 
     try {
         await electorInstance.validate();
@@ -108,22 +95,22 @@ exports.postOneSpreadRow = async (req, res) => {
         await electorInstance.save();
 
         return res.status(201).json({
-            success: true,
-            message: 'Data saved successfully.'
+            succeed: true,
+            message: 'Data saved successfully.',
         });
     } catch (error) {
-        console.error(error);
-        if (error.name === 'ValidationError') {
-            
+        // console.error(error);
+
+        if (error instanceof mongoose.Error.ValidationError) {
             return res.status(400).json({
-                success: false,
+                succeed: false,
                 error: 'Validation error.',
+                validationErrors: error.errors,
             });
         } else {
-            
             return res.status(500).json({
-                success: false,
-                error: 'Error while saving data to the database.',
+                succeed: false,
+                error: error.errors
             });
         }
     }
@@ -132,7 +119,7 @@ exports.postOneSpreadRow = async (req, res) => {
 exports.putOneSpreadRow=async (req,res)=>{
 
     const spreadId= req.params.id;
-        if (!isValidObjectId(spreadId)) {
+        if (!mongoose.isValidObjectId(spreadId)) {
             return res.status(400).json({
                 succeed: false,
                 error: 'Invalid Idea ID'
@@ -162,7 +149,7 @@ exports.putOneSpreadRow=async (req,res)=>{
     });
     if (isMissingField.value) {
         return res.status(400).json({
-                success: false,
+                succeed: false,
                 isMissingField
             });
     }
@@ -181,7 +168,7 @@ exports.putOneSpreadRow=async (req,res)=>{
         }); 
     } catch (error) {
         res.status(500).json({
-            succed:false,
+            succeed:false,
             error:'Something went wrong'+ error.message
         });
         console.log(error);
@@ -190,7 +177,7 @@ exports.putOneSpreadRow=async (req,res)=>{
 
 exports.deleteOneSpreadRow=async (req,res)=>{
     const spreadId= req.params.id;
-        if (!isValidObjectId(spreadId)) {
+        if (!mongoose.isValidObjectId(spreadId)) {
             return res.status(400).json({
                 succeed: false,
                 error: 'Invalid spread ID'
@@ -200,20 +187,20 @@ exports.deleteOneSpreadRow=async (req,res)=>{
         const perso=await Electeur.findById(spreadId);
         if(!perso){
             return res.json(404).json({
-                succed:false,
+                succeed:false,
                 error: 'Row not found !!!'
             });
         }
 
         const deletedPerso=await Electeur.findByIdAndDelete(spreadId);
         res.status(200).json({
-                succed:true,
+                succeed:true,
                 data:deletedPerso
             });
         
     } catch (error) {
         res.status(500).json({
-            succed:false,
+            succeed:false,
             error:'Something went wrong'+ error.message
         });
         console.log(error);
