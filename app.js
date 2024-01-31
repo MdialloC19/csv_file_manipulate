@@ -1,17 +1,18 @@
-const express=require('express');
-const app=express();
+const express = require("express");
+const app = express();
 
-require('dotenv').config();
-const router=require('./routes/router');
-const connectDB=require('./config/db');
+require("dotenv").config();
+
+const connectDB = require("./config/db");
 
 connectDB();
 // Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.get('/',router);
-app.use('/api/spread',router);
+// app.get('/',router);
+app.use("/api/spread", require("./routes/spread"));
+app.use("/api/users", require("./routes/users"));
 
 // const data = {
 //     firstName: 'John',
@@ -34,5 +35,4 @@ app.use('/api/spread',router);
 //     .then(data => console.log(data))
 //     .catch(error => console.error('Error:', error));
 
-module.exports=app;
-
+module.exports = app;

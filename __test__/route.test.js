@@ -19,27 +19,8 @@ describe('API routes testing', () => {
         expect(typeof request(app).post).toBe('function');
       
     });
-    
-    // it('Should add a row on the spread ', async  ()=>{
-    // const data = {
-    //     firstName: 'John',
-    //     secondName: 'DoDDD',
-    //     nationalIdentityNumber: 134789,
-    //     voterNumber: 976321,
-    //     dateOfBirth: '1990-01-01',
-    //     placeOfBirth: 'City',
-    //     votingPlace: 'Polling Station'
-    // };
-    // const response= await request(app)
-    //         .post('/api/spread/')
-    //         .send(data)
-    //         .expect(201);
 
-    //         console.log(response.error);
-    // expect(response.body.message).toBe('Data saved successfully.');
-    // });
-
-     it('should add a new row to the spread', async () => {
+    it('should add a new row to the spread', async () => {
     const data = {
       firstName: 'John',
       secondName: 'Doe',
