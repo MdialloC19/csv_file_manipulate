@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/auth");
-const { getAuth } = require("../controller/authControllers");
+const { getAuth, postAuth } = require("../controller/authControllers");
 
 /**
  * @route Get api/auth
@@ -11,3 +11,5 @@ const { getAuth } = require("../controller/authControllers");
 
 router.get("/", authMiddleware, getAuth);
 module.exports = router;
+
+router.post("/", postAuth);

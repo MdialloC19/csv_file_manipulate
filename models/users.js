@@ -14,6 +14,7 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: [true, "Please give the password"],
   },
+  previousPasswords: [String],
   avatar: {
     type: String,
   },
