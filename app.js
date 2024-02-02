@@ -13,6 +13,7 @@ app.use(express.urlencoded({ extended: false }));
 // app.get('/',router);
 app.use("/api/spread", require("./routes/spread"));
 app.use("/api/users", require("./routes/users"));
+app.use("/api/auth", require("./routes/auth"));
 
 // const data = {
 //     firstName: 'John',

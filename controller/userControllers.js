@@ -25,8 +25,7 @@ exports.getAllUser = async (req, res) => {
         erros: [{ msg: "User Not found" }],
       });
     }
-
-    return res.json(200).json({
+    return res.status(200).json({
       sucess: true,
       data: user,
     });
