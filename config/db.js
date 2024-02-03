@@ -13,39 +13,50 @@ mongoose.set("strictQuery", true);
  *
  * @async
  * @function
- * @returns {Promise<void>} A promise that resolves when the update is complete.
- * @throws {Error} An error if the update fails.
+ * @param {Object} updateFields - Les champs à mettre à jour pour tous les utilisateurs.
+ * @returns {Promise<void>} Une promesse qui se résout lorsque la mise à jour est complète.
+ * @throws {Error} Une erreur si la mise à jour échoue.
  *
  * @example
- * // Example of usage
- * await updateDocuments();
+ * // Exemple d'utilisation
+ * const updateFields = {
+ *   previousPasswords: [],
+ *   // Ajoutez d'autres champs à mettre à jour au besoin
+ * };
+ * await updateAllUsers(updateFields);
  */
-async function updateDocuments() {
+
+async function updateAllUsers(updateFields) {
   try {
-    // Retrieve all documents
     const users = await User.find({});
 
-    // Update each document
     for (const user of users) {
-      if (!user.isDeleted) {
-        user.isDeleted = [];
-      }
-      // You can also add default values for the previousPasswords field if necessary
+      Object.keys(updateFields).forEach((field) => {
+        if (user[field] === undefined) {
+          user[field] = updateFields[field];
+          // console.log(user[field]);
+        }
+      });
     }
-    console.log(users);
 
-    // Save the modifications
+    // console.log(users);
     await Promise.all(users.map((user) => user.save()));
-
     console.log("Document update completed.");
   } catch (error) {
     console.error("Error during document update:", error);
-    throw error; // Reject the error for downstream error handling if necessary
+    throw error;
   } finally {
     mongoose.disconnect();
   }
 }
 
-// updateDocuments();
+const updateFields = {
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+};
+
+// updateAllUsers(updateFields);
 
 module.exports = connectDB;

@@ -22,14 +22,18 @@ const UserSchema = mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-// UserSchema.pre("find", function () {
-//   this.where({ isDeleted: false });
-// });
+UserSchema.pre("find", function () {
+  this.where({ isDeleted: false });
+});
 
-// UserSchema.pre("findOne", function () {
-//   this.where({ isDeleted: false });
-// });
+UserSchema.pre("findOne", function () {
+  this.where({ isDeleted: false });
+});
 
 module.exports = User = mongoose.model("User", UserSchema);
