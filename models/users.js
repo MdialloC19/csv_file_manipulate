@@ -24,4 +24,12 @@ const UserSchema = mongoose.Schema({
   },
 });
 
-module.exports = User = mongoose.model("user", UserSchema);
+// UserSchema.pre("find", function () {
+//   this.where({ isDeleted: false });
+// });
+
+// UserSchema.pre("findOne", function () {
+//   this.where({ isDeleted: false });
+// });
+
+module.exports = User = mongoose.model("User", UserSchema);

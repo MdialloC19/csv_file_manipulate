@@ -82,7 +82,7 @@ exports.postAuth = async (req, res) => {
         return res.status(201).json({
           token,
           sucess: true,
-          message: "User registered",
+          message: "User authentificated",
         });
       }
     );
